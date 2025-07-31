@@ -24,10 +24,11 @@ const DataManager = {
         return false;
     },
 
-    // Simple authentication (you can enhance this later)
+    // Simple authentication with secure password handling
     authenticate(password) {
-        // You can change this password to whatever you want
-        const correctPassword = "WantAPotato2025!"; // Change this to your desired password
+        // Password is injected during GitHub Actions deployment
+        // Set your password in GitHub repository secrets as WEBSITE_PASSWORD
+        const correctPassword = "PASSWORD_PLACEHOLDER"; // This gets replaced during deployment
         
         if (password === correctPassword) {
             this.isAuthenticated = true;

@@ -1,0 +1,25 @@
+# GitHub Pages Configuration
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+gems:
+  - jekyll-feed
+  - jekyll-sitemap
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - README.md
+
+# Site settings
+title: "WantAPotato's Ideas List"
+description: "A secure project management system for creative ideas"
+baseurl: ""
+url: ""
+
+# GitHub Pages will automatically serve from the root directory

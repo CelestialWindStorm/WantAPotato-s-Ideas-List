@@ -1,31 +1,116 @@
-// Data persistence utility for saving projects to files
-// This script provides functionality to save and load project data
+// Data persistence utility for GitHub Pages deployment
+// This script provides functionality to save and load project data from browser storage
 
 const DataManager = {
-    // Auto-save settings
-    autoSaveEnabled: true,
-    downloadPath: 'project pages/',
-    projectPagesHandle: null, // Store folder handle
+    // Authentication settings
+    isAuthenticated: false,
+    authToken: null,
     
-    // Initialize folder access
-    async initializeFolderAccess() {
-        if ('showDirectoryPicker' in window) {
-            try {
-                // Ask user to select the project pages folder
-                this.projectPagesHandle = await window.showDirectoryPicker();
-                this.showNotification('✅ Project pages folder connected! Files will now save directly to the folder.', 'success');
+    // Initialize authentication
+    async initializeAuth() {
+        // Check if user is already authenticated
+        const savedAuth = localStorage.getItem('project_auth');
+        if (savedAuth) {
+            const authData = JSON.parse(savedAuth);
+            // Check if auth is still valid (24 hours)
+            if (Date.now() - authData.timestamp < 24 * 60 * 60 * 1000) {
+                this.isAuthenticated = true;
+                this.authToken = authData.token;
                 return true;
-            } catch (error) {
-                if (error.name !== 'AbortError') {
-                    console.error('Error accessing folder:', error);
-                }
-                return false;
+            } else {
+                localStorage.removeItem('project_auth');
             }
         }
         return false;
     },
 
-    // Convert project data to JSON format for file storage
+    // Simple authentication (you can enhance this later)
+    authenticate(password) {
+        // You can change this password to whatever you want
+        const correctPassword = "WantAPotato2025!"; // Change this to your desired password
+        
+        if (password === correctPassword) {
+            this.isAuthenticated = true;
+            this.authToken = btoa(Date.now().toString());
+            
+            // Save authentication for 24 hours
+            localStorage.setItem('project_auth', JSON.stringify({
+                token: this.authToken,
+                timestamp: Date.now()
+            }));
+            
+            return true;
+        }
+        return false;
+    },
+
+    // Logout
+    logout() {
+        this.isAuthenticated = false;
+        this.authToken = null;
+        localStorage.removeItem('project_auth');
+        location.reload();
+    },
+
+    // Check if user is authenticated for any action
+    requireAuth() {
+        if (!this.isAuthenticated) {
+            this.showAuthModal();
+            return false;
+        }
+        return true;
+    },
+
+    // Show authentication modal
+    showAuthModal() {
+        let modal = document.getElementById('authModal');
+        if (!modal) {
+            modal = this.createAuthModal();
+        }
+        modal.style.display = 'block';
+    },
+
+    // Create authentication modal
+    createAuthModal() {
+        const modal = document.createElement('div');
+        modal.id = 'authModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h3>🔐 Authentication Required</h3>
+                <p>Please enter the password to access the project management system:</p>
+                <form id="authForm">
+                    <input type="password" id="authPassword" placeholder="Enter password" required style="width: 100%; padding: 0.8rem; margin: 1rem 0; border: 1px solid #e2e8f0; border-radius: 6px;">
+                    <div style="text-align: right;">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </form>
+                <div id="authError" style="color: #e53e3e; margin-top: 0.5rem; display: none;"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Add event listeners
+        modal.querySelector('#authForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = modal.querySelector('#authPassword').value;
+            const errorDiv = modal.querySelector('#authError');
+            
+            if (this.authenticate(password)) {
+                modal.style.display = 'none';
+                this.showNotification('✅ Successfully authenticated!', 'success');
+                location.reload(); // Refresh to show content
+            } else {
+                errorDiv.textContent = 'Incorrect password. Please try again.';
+                errorDiv.style.display = 'block';
+                modal.querySelector('#authPassword').value = '';
+            }
+        });
+
+        return modal;
+    },
+
+    // Convert project data to JSON format for export
     exportProject: function(categoryId, projectId, projectData) {
         const exportData = {
             metadata: {
@@ -42,45 +127,14 @@ const DataManager = {
         return JSON.stringify(exportData, null, 2);
     },
 
-    // Auto-save project to file when changes are made
-    autoSaveProject: function(categoryId, projectId, projectData) {
-        if (!this.autoSaveEnabled) return;
+    // Download project as JSON file (fallback method)
+    downloadProject: function(categoryId, projectId, projectData) {
+        if (!this.requireAuth()) return;
         
-        // Add a small delay to avoid too frequent saves
-        clearTimeout(this.autoSaveTimeout);
-        this.autoSaveTimeout = setTimeout(() => {
-            this.saveProjectToFile(categoryId, projectId, projectData);
-        }, 2000); // Save 2 seconds after last change
-    },
-
-    // Save project to JSON file in project pages folder
-    async saveProjectToFile(categoryId, projectId, projectData) {
         const jsonData = this.exportProject(categoryId, projectId, projectData);
         const fileName = `${categoryId}_${projectId}.json`;
         
-        // Try to save directly to project pages folder if we have access
-        if (this.projectPagesHandle) {
-            try {
-                const fileHandle = await this.projectPagesHandle.getFileHandle(fileName, { create: true });
-                const writable = await fileHandle.createWritable();
-                await writable.write(jsonData);
-                await writable.close();
-                
-                this.showNotification(`💾 ${fileName} saved to project pages folder!`, 'success');
-                return;
-            } catch (error) {
-                console.error('Error saving to folder:', error);
-                this.showNotification('⚠️ Could not save to project pages folder. Falling back to download.', 'warning');
-            }
-        }
-        
-        // Fallback to download
-        this.downloadFile(jsonData, fileName);
-    },
-
-    // Download file (fallback method)
-    downloadFile: function(content, fileName) {
-        const blob = new Blob([content], { type: 'application/json' });
+        const blob = new Blob([jsonData], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         
         const a = document.createElement('a');
@@ -93,7 +147,24 @@ const DataManager = {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        this.showNotification(`💾 ${fileName} downloaded! Move it to the project pages folder.`, 'info');
+        this.showNotification(`💾 ${fileName} downloaded!`, 'success');
+    },
+
+    // Load project from JSON file
+    loadProjectFromFile: function(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const projectData = JSON.parse(e.target.result);
+                    resolve(projectData);
+                } catch (error) {
+                    reject(error);
+                }
+            };
+            reader.onerror = reject;
+            reader.readAsText(file);
+        });
     },
 
     // Show notification to user

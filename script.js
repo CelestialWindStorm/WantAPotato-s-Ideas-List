@@ -6,10 +6,34 @@ const AppState = {
 };
 
 // Initialize the application
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    // Initialize authentication first
+    if (typeof DataManager !== 'undefined') {
+        const isAuthenticated = await DataManager.initializeAuth();
+        if (isAuthenticated) {
+            showMainContent();
+        } else {
+            showAuthScreen();
+        }
+    } else {
+        showMainContent();
+    }
+    
     loadCategories();
     setupEventListeners();
 });
+
+// Show main content (authenticated)
+function showMainContent() {
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+}
+
+// Show authentication screen
+function showAuthScreen() {
+    document.getElementById('loadingScreen').style.display = 'block';
+    document.getElementById('mainContent').style.display = 'none';
+}
 
 // Load categories from the markdown file
 async function loadCategories() {
@@ -73,6 +97,7 @@ function setupEventListeners() {
 
     if (createCategoryBtn) {
         createCategoryBtn.addEventListener('click', () => {
+            if (typeof DataManager !== 'undefined' && !DataManager.requireAuth()) return;
             categoryModal.style.display = 'block';
         });
     }
@@ -87,25 +112,40 @@ function setupEventListeners() {
         categoryForm.addEventListener('submit', handleCreateCategory);
     }
 
-    // Connect folder button
-    const connectFolderBtn = document.getElementById('connectFolderBtn');
-    if (connectFolderBtn && typeof DataManager !== 'undefined') {
-        connectFolderBtn.addEventListener('click', async () => {
-            const success = await DataManager.initializeFolderAccess();
-            if (success) {
-                connectFolderBtn.textContent = '✅ Folder Connected';
-                connectFolderBtn.disabled = true;
-                connectFolderBtn.style.background = '#38a169';
-                connectFolderBtn.style.color = 'white';
+    // Authentication button
+    const authBtn = document.getElementById('authBtn');
+    if (authBtn && typeof DataManager !== 'undefined') {
+        authBtn.addEventListener('click', () => {
+            DataManager.showAuthModal();
+        });
+    }
+
+    // Logout button
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn && typeof DataManager !== 'undefined') {
+        logoutBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to logout?')) {
+                DataManager.logout();
             }
         });
     }
 
-    // Load all projects button
-    const loadAllProjectsBtn = document.getElementById('loadAllProjectsBtn');
-    if (loadAllProjectsBtn && typeof DataManager !== 'undefined') {
-        loadAllProjectsBtn.addEventListener('click', async () => {
-            await DataManager.loadAllProjectsFromFolder();
+    // Export all projects button
+    const exportAllBtn = document.getElementById('exportAllBtn');
+    if (exportAllBtn && typeof DataManager !== 'undefined') {
+        exportAllBtn.addEventListener('click', exportAllProjects);
+    }
+
+    // Import project button
+    const importProjectBtn = document.getElementById('importProjectBtn');
+    if (importProjectBtn) {
+        importProjectBtn.addEventListener('click', () => {
+            if (typeof DataManager !== 'undefined' && !DataManager.requireAuth()) return;
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = handleProjectImport;
+            input.click();
         });
     }
 
@@ -115,6 +155,92 @@ function setupEventListeners() {
             categoryModal.style.display = 'none';
         }
     });
+}
+
+// Export all projects
+function exportAllProjects() {
+    if (typeof DataManager !== 'undefined' && !DataManager.requireAuth()) return;
+    
+    const allProjects = {};
+    
+    // Get all projects from localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('project_')) {
+            const value = localStorage.getItem(key);
+            allProjects[key] = JSON.parse(value);
+        }
+    }
+    
+    const exportData = {
+        timestamp: new Date().toISOString(),
+        categories: AppState.categories,
+        projects: allProjects
+    };
+    
+    const jsonData = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `all_projects_backup_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    if (typeof DataManager !== 'undefined') {
+        DataManager.showNotification('📦 All projects exported successfully!', 'success');
+    }
+}
+
+// Handle project import
+async function handleProjectImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    try {
+        if (typeof DataManager !== 'undefined') {
+            const projectData = await DataManager.loadProjectFromFile(file);
+            
+            if (projectData.metadata) {
+                // Single project import
+                const storageData = {
+                    title: projectData.metadata.title,
+                    content: projectData.content,
+                    created: projectData.metadata.created,
+                    lastModified: projectData.metadata.lastModified
+                };
+                
+                Storage.saveProject(
+                    projectData.metadata.categoryId, 
+                    projectData.metadata.projectId, 
+                    storageData
+                );
+                
+                DataManager.showNotification('✅ Project imported successfully!', 'success');
+            } else if (projectData.projects) {
+                // Full backup import
+                let count = 0;
+                for (const [key, value] of Object.entries(projectData.projects)) {
+                    localStorage.setItem(key, JSON.stringify(value));
+                    count++;
+                }
+                
+                DataManager.showNotification(`✅ Imported ${count} projects from backup!`, 'success');
+                setTimeout(() => location.reload(), 1500);
+            }
+        }
+    } catch (error) {
+        if (typeof DataManager !== 'undefined') {
+            DataManager.showNotification('❌ Error importing project: ' + error.message, 'error');
+        } else {
+            alert('Error importing project: ' + error.message);
+        }
+    }
+    
+    event.target.value = '';
 }
 
 // Handle creating new category

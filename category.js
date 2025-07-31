@@ -7,6 +7,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function loadCategoryPage() {
+    // Check authentication first
+    if (typeof DataManager !== 'undefined') {
+        const isAuthenticated = await DataManager.initializeAuth();
+        if (!isAuthenticated) {
+            DataManager.showAuthModal();
+            return;
+        }
+    }
+
     const categoryId = URLUtils.getParam('id');
     
     if (!categoryId) {
@@ -80,6 +89,7 @@ function setupCategoryEventListeners() {
 
     if (createProjectBtn) {
         createProjectBtn.addEventListener('click', () => {
+            if (typeof DataManager !== 'undefined' && !DataManager.requireAuth()) return;
             projectModal.style.display = 'block';
         });
     }

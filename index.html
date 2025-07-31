@@ -13,11 +13,13 @@
     </header>
 
     <main>
-        <div class="categories-container">
-            <div class="file-save-notice" style="background: #e6fffa; border: 1px solid #38b2ac; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-                <h4 style="margin: 0 0 0.5rem 0; color: #234e52;">📁 File System Integration</h4>
-                <p style="margin: 0 0 0.5rem 0; color: #234e52; font-size: 0.9rem;">Projects can be automatically saved as JSON files. Click "Connect Project Folder" to enable direct saving to your project pages folder (Chrome/Edge), or files will download to your Downloads folder.</p>
-                <button id="connectFolderBtn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.5rem 1rem;">📂 Connect Project Folder</button>
+        <div class="categories-container" id="mainContent" style="display: none;">
+            <div class="auth-info" style="background: #f0fff4; border: 1px solid #38a169; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="margin: 0 0 0.5rem 0; color: #22543d;">� Authenticated Session</h4>
+                    <p style="margin: 0; color: #22543d; font-size: 0.9rem;">You are logged in to the project management system. Your session will expire in 24 hours.</p>
+                </div>
+                <button id="logoutBtn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.5rem 1rem;">Logout</button>
             </div>
             
             <h2>Project Categories</h2>
@@ -27,8 +29,16 @@
             
             <div class="admin-actions">
                 <button id="createCategoryBtn" class="btn btn-primary">Create New Category</button>
-                <button id="loadAllProjectsBtn" class="btn btn-secondary" style="margin-left: 0.5rem;">📥 Load All Projects from Folder</button>
+                <button id="exportAllBtn" class="btn btn-secondary" style="margin-left: 0.5rem;">📥 Export All Projects</button>
+                <button id="importProjectBtn" class="btn btn-secondary" style="margin-left: 0.5rem;">� Import Project</button>
             </div>
+        </div>
+
+        <!-- Loading/Authentication screen -->
+        <div id="loadingScreen" class="categories-container" style="text-align: center; padding: 4rem 2rem;">
+            <h2>🔐 Authentication Required</h2>
+            <p>Please authenticate to access your project management system.</p>
+            <button id="authBtn" class="btn btn-primary">Login</button>
         </div>
     </main>
 

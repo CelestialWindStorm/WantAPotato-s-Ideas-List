@@ -9,6 +9,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function loadProjectPage() {
+    // Check authentication first
+    if (typeof DataManager !== 'undefined') {
+        const isAuthenticated = await DataManager.initializeAuth();
+        if (!isAuthenticated) {
+            DataManager.showAuthModal();
+            return;
+        }
+    }
+
     currentCategoryId = URLUtils.getParam('category');
     currentProjectId = URLUtils.getParam('project');
     
@@ -248,11 +257,6 @@ function updateContentBlock(index, content) {
         
         // Auto-save to localStorage
         Storage.saveProject(currentCategoryId, currentProjectId, currentProjectData);
-        
-        // Auto-save to file
-        if (typeof DataManager !== 'undefined') {
-            DataManager.autoSaveProject(currentCategoryId, currentProjectId, currentProjectData);
-        }
     }
 }
 
@@ -278,6 +282,8 @@ function moveContentBlock(index, direction) {
 }
 
 function addContentBlock(type) {
+    if (typeof DataManager !== 'undefined' && !DataManager.requireAuth()) return;
+    
     const newBlock = {
         type: type,
         content: type === 'text' ? 'New text content...' : 
@@ -290,9 +296,6 @@ function addContentBlock(type) {
     
     // Save changes
     Storage.saveProject(currentCategoryId, currentProjectId, currentProjectData);
-    if (typeof DataManager !== 'undefined') {
-        DataManager.autoSaveProject(currentCategoryId, currentProjectId, currentProjectData);
-    }
     
     renderContentBlocks();
     
@@ -302,6 +305,7 @@ function addContentBlock(type) {
 }
 
 function saveProject() {
+    if (typeof DataManager !== 'undefined' && !DataManager.requireAuth()) return;
     if (!currentProjectData || !currentCategoryId || !currentProjectId) return;
     
     // Update title
@@ -310,11 +314,6 @@ function saveProject() {
     
     // Save to localStorage
     Storage.saveProject(currentCategoryId, currentProjectId, currentProjectData);
-    
-    // Save to file
-    if (typeof DataManager !== 'undefined') {
-        DataManager.saveProjectToFile(currentCategoryId, currentProjectId, currentProjectData);
-    }
     
     // Update display
     document.getElementById('lastModified').textContent = new Date().toLocaleDateString() + ' at ' + new Date().toLocaleTimeString();
@@ -347,6 +346,13 @@ function setupProjectEventListeners() {
     // Save button
     document.getElementById('saveBtn').addEventListener('click', saveProject);
     
+    // Export button
+    document.getElementById('exportBtn').addEventListener('click', () => {
+        if (typeof DataManager !== 'undefined') {
+            DataManager.downloadProject(currentCategoryId, currentProjectId, currentProjectData);
+        }
+    });
+    
     // Load button
     document.getElementById('loadBtn').addEventListener('click', loadProjectFromFile);
     
@@ -356,45 +362,18 @@ function setupProjectEventListeners() {
     // Title input
     document.getElementById('projectTitle').addEventListener('input', function() {
         document.getElementById('projectBreadcrumb').textContent = this.value;
-        // Auto-save when title changes
-        if (typeof DataManager !== 'undefined') {
-            DataManager.autoSaveProject(currentCategoryId, currentProjectId, currentProjectData);
-        }
     });
     
     // File input for loading projects
     document.getElementById('fileInput').addEventListener('change', handleFileLoad);
     
-    // Auto-save toggle
-    document.getElementById('autoSaveToggle').addEventListener('change', function() {
-        if (typeof DataManager !== 'undefined') {
-            DataManager.autoSaveEnabled = this.checked;
-        }
-    });
-    
-    // Settings panel toggle (click on save button to show settings)
-    document.getElementById('saveBtn').addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        const panel = document.getElementById('settingsPanel');
-        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-    });
-    
-    // Hide settings panel when clicking elsewhere
-    document.addEventListener('click', function(e) {
-        const panel = document.getElementById('settingsPanel');
-        const saveBtn = document.getElementById('saveBtn');
-        if (!panel.contains(e.target) && e.target !== saveBtn) {
-            panel.style.display = 'none';
-        }
-    });
-    
-    // Auto-save on content changes (reduced frequency)
+    // Auto-save to localStorage
     let autoSaveInterval;
     const startAutoSave = () => {
         clearInterval(autoSaveInterval);
         autoSaveInterval = setInterval(() => {
             Storage.saveProject(currentCategoryId, currentProjectId, currentProjectData);
-        }, 60000); // Auto-save to localStorage every minute
+        }, 30000); // Auto-save to localStorage every 30 seconds
     };
     startAutoSave();
     

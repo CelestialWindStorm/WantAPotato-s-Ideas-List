@@ -1,6 +1,8 @@
 # WantAPotato's Ideas List - Secure Project Management System
 
-A password-protected web-based project management system for organizing and managing creative project ideas across different categories. Optimized for GitHub Pages deployment.
+A comprehensive project management system for organizing and developing creative ideas, with secure authentication and GitHub Pages deployment.
+
+**Latest Update:** Authentication system enhanced with better error handling and debugging tools.
 
 ## 🔐 Security Features
 

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category - WantAPotato's Ideas List</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>🥔 WantAPotato's Ideas List</h1>
+        <p>A collection of creative projects and ideas</p>
+    </header>
+
+    <main>
+        <div class="project-container">
+            <div class="breadcrumb">
+                <a href="index.html">← Back to Categories</a>
+            </div>
+            
+            <div class="project-header">
+                <div>
+                    <h1 class="project-title" id="categoryTitle">Loading...</h1>
+                    <p id="categoryDescription">Browse projects in this category</p>
+                </div>
+                <div>
+                    <button id="createProjectBtn" class="btn btn-primary">Create New Project</button>
+                </div>
+            </div>
+
+            <div class="projects-grid" id="projectsGrid">
+                <!-- Projects will be loaded here -->
+            </div>
+
+            <div class="admin-actions" id="noProjectsMessage" style="display: none;">
+                <p>No projects in this category yet. Create your first project!</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for creating new projects -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Create New Project</h3>
+            <form id="projectForm">
+                <input type="text" id="projectName" placeholder="Project Name" required>
+                <button type="submit" class="btn btn-primary">Create Project</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="category.js"></script>
+</body>
+</html>

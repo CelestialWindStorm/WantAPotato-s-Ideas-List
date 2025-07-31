@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "categoryId": "example-category",
+    "projectId": "sample-project",
+    "title": "Sample Project",
+    "created": "2025-07-30T12:00:00.000Z",
+    "lastModified": "2025-07-30T12:30:00.000Z",
+    "version": "1.0"
+  },
+  "content": [
+    {
+      "type": "title",
+      "content": "Welcome to My Project"
+    },
+    {
+      "type": "text",
+      "content": "This is a sample project showing how the JSON format works. You can have multiple content blocks of different types."
+    },
+    {
+      "type": "image",
+      "content": "https://example.com/image.jpg"
+    },
+    {
+      "type": "text",
+      "content": "Each content block has a type (text, image, or title) and content. The blocks are rendered in order on the project page."
+    }
+  ]
+}

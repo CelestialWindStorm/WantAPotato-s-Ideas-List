@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project - WantAPotato's Ideas List</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>🥔 WantAPotato's Ideas List</h1>
+        <p>A collection of creative projects and ideas</p>
+    </header>
+
+    <main>
+        <div class="project-container">
+            <div class="breadcrumb">
+                <a href="index.html">Categories</a> > 
+                <a href="#" id="categoryLink">Category</a> > 
+                <span id="projectBreadcrumb">Project</span>
+            </div>
+            
+            <div class="project-header">
+                <div>
+                    <input type="text" class="project-title" id="projectTitle" placeholder="Project Title">
+                    <p>Last modified: <span id="lastModified">Never</span></p>
+                </div>
+                <div>
+                    <button id="loadBtn" class="btn btn-secondary">Load from File</button>
+                    <button id="saveBtn" class="btn btn-primary">Save to File</button>
+                    <button id="deleteBtn" class="btn btn-danger">Delete Project</button>
+                </div>
+            </div>
+
+            <div class="editor-container" id="editorContainer">
+                <!-- Content blocks will be rendered here -->
+            </div>
+
+            <div class="add-content-section">
+                <h3>Add Content</h3>
+                <div class="add-content-buttons">
+                    <button class="btn btn-secondary" onclick="addContentBlock('text')">Add Text</button>
+                    <button class="btn btn-secondary" onclick="addContentBlock('image')">Add Image</button>
+                    <button class="btn btn-secondary" onclick="addContentBlock('title')">Add Title</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Hidden file input for loading projects -->
+    <input type="file" id="fileInput" accept=".json" style="display: none;">
+
+    <!-- Auto-save settings panel -->
+    <div id="settingsPanel" style="position: fixed; top: 70px; right: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none;">
+        <h4 style="margin: 0 0 10px 0; color: #2d3748;">Save Settings</h4>
+        <label style="display: flex; align-items: center; margin-bottom: 10px;">
+            <input type="checkbox" id="autoSaveToggle" checked style="margin-right: 8px;">
+            Auto-save to files
+        </label>
+        <p style="font-size: 12px; color: #718096; margin: 0;">Files will be saved to your Downloads folder. Move them to the 'project pages' folder.</p>
+    </div>
+
+    <!-- Modal for image upload -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Add Image</h3>
+            <form id="imageForm">
+                <input type="file" id="imageFile" accept="image/*">
+                <p>Or paste an image URL:</p>
+                <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg">
+                <button type="submit" class="btn btn-primary">Add Image</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation modal for delete -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Delete Project</h3>
+            <p>Are you sure you want to delete this project? This action cannot be undone.</p>
+            <div style="text-align: right; margin-top: 1rem;">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="project.js"></script>
+    <script src="data-manager.js"></script>
+</body>
+</html>

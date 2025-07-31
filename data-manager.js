@@ -30,6 +30,20 @@ const DataManager = {
         // Set your password in GitHub repository secrets as WEBSITE_PASSWORD
         const correctPassword = "PASSWORD_PLACEHOLDER"; // This gets replaced during deployment
         
+        // Debug information (remove in production)
+        console.log('Authentication attempt:', {
+            passwordLength: password.length,
+            correctPasswordLength: correctPassword.length,
+            isPlaceholder: correctPassword === "PASSWORD_PLACEHOLDER"
+        });
+        
+        if (correctPassword === "PASSWORD_PLACEHOLDER") {
+            console.error('WARNING: Password placeholder was not replaced during deployment!');
+            // Show helpful error message to user
+            this.showNotification('❌ Website not properly configured. Password replacement failed during deployment.', 'error');
+            return false;
+        }
+        
         if (password === correctPassword) {
             this.isAuthenticated = true;
             this.authToken = btoa(Date.now().toString());
@@ -105,6 +119,30 @@ const DataManager = {
                 errorDiv.textContent = 'Incorrect password. Please try again.';
                 errorDiv.style.display = 'block';
                 modal.querySelector('#authPassword').value = '';
+                
+                // Add debugging information
+                if (document.querySelector('#authPassword').value === '') {
+                    console.log('Authentication failed. Check console for debug info.');
+                }
+            }
+        });
+
+        // Add emergency bypass for debugging (remove in production)
+        modal.querySelector('#authPassword').addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && e.code === 'KeyD') {
+                console.log('Emergency debug mode activated');
+                const correctPassword = "PASSWORD_PLACEHOLDER";
+                console.log('Current password placeholder:', correctPassword);
+                console.log('Is placeholder replaced?', correctPassword !== "PASSWORD_PLACEHOLDER");
+                if (correctPassword === "PASSWORD_PLACEHOLDER") {
+                    console.error('Password replacement failed during deployment!');
+                    errorDiv.innerHTML = `
+                        <strong>Deployment Issue Detected:</strong><br>
+                        The password was not properly replaced during GitHub Actions deployment.<br>
+                        Please check the repository secrets and redeploy.
+                    `;
+                    errorDiv.style.display = 'block';
+                }
             }
         });
 

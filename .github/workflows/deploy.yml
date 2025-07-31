@@ -29,7 +29,33 @@ jobs:
 
       - name: Replace password placeholder
         run: |
-          sed -i "s/PASSWORD_PLACEHOLDER/${{ secrets.WEBSITE_PASSWORD }}/g" data-manager.js
+          # Use a more robust method to replace the password
+          python3 -c "
+          import os
+          import sys
+          
+          # Read the file
+          with open('data-manager.js', 'r', encoding='utf-8') as f:
+              content = f.read()
+          
+          # Replace the placeholder with the actual password
+          password = os.environ.get('WEBSITE_PASSWORD', '')
+          if not password:
+              print('ERROR: WEBSITE_PASSWORD secret is not set!')
+              sys.exit(1)
+          
+          # Escape the password for JavaScript string
+          password_escaped = password.replace('\\\\', '\\\\\\\\').replace('\"', '\\\\\"').replace('\\'', '\\\\\\'')
+          content = content.replace('PASSWORD_PLACEHOLDER', password_escaped)
+          
+          # Write back to file
+          with open('data-manager.js', 'w', encoding='utf-8') as f:
+              f.write(content)
+          
+          print(f'Password replacement completed. Password length: {len(password)} characters')
+          "
+        env:
+          WEBSITE_PASSWORD: ${{ secrets.WEBSITE_PASSWORD }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

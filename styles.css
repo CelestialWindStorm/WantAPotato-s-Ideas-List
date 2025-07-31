@@ -59,6 +59,10 @@ main {
     margin-bottom: 2rem;
 }
 
+.category-card-container {
+    position: relative;
+}
+
 .category-card {
     background: linear-gradient(145deg, #f8fafc, #e2e8f0);
     border-radius: 12px;
@@ -68,12 +72,43 @@ main {
     transition: all 0.3s ease;
     border: 2px solid transparent;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: block;
 }
 
 .category-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     border-color: #667eea;
+}
+
+.category-delete-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: #e53e3e;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.category-card-container:hover .category-delete-btn {
+    opacity: 1;
+}
+
+.category-delete-btn:hover {
+    background: #c53030;
+    transform: scale(1.1);
 }
 
 .category-card h3 {
@@ -184,6 +219,10 @@ main {
     margin-bottom: 2rem;
 }
 
+.project-card-container {
+    position: relative;
+}
+
 .project-card {
     background: linear-gradient(145deg, #f8fafc, #e2e8f0);
     border-radius: 12px;
@@ -193,12 +232,43 @@ main {
     transition: all 0.3s ease;
     border: 2px solid transparent;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: block;
 }
 
 .project-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     border-color: #667eea;
+}
+
+.project-delete-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: #e53e3e;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.project-card-container:hover .project-delete-btn {
+    opacity: 1;
+}
+
+.project-delete-btn:hover {
+    background: #c53030;
+    transform: scale(1.1);
 }
 
 .project-card h3 {

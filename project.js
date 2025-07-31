@@ -334,7 +334,19 @@ function deleteProject() {
 }
 
 function confirmDelete() {
+    // Remove from localStorage
     Storage.deleteProject(currentCategoryId, currentProjectId);
+    
+    // Also remove from the category's project list if we have access to AppState
+    if (typeof AppState !== 'undefined' && AppState.categories) {
+        const category = AppState.categories.find(c => c.id === currentCategoryId);
+        if (category && currentProjectData) {
+            category.projects = category.projects.filter(p => 
+                StringUtils.slugify(p) !== currentProjectId
+            );
+        }
+    }
+    
     window.location.href = `category.html?id=${currentCategoryId}`;
 }
 

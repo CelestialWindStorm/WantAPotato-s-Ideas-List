@@ -75,6 +75,9 @@ function renderCategories() {
     grid.innerHTML = '';
 
     AppState.categories.forEach(category => {
+        const cardContainer = document.createElement('div');
+        cardContainer.className = 'category-card-container';
+        
         const card = document.createElement('a');
         card.href = `category.html?id=${category.id}`;
         card.className = 'category-card';
@@ -83,7 +86,20 @@ function renderCategories() {
             <p>Explore projects in this category</p>
             <span class="project-count">${category.projects.length} projects</span>
         `;
-        grid.appendChild(card);
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'category-delete-btn';
+        deleteBtn.innerHTML = '×';
+        deleteBtn.title = 'Delete Category';
+        deleteBtn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            showDeleteCategoryModal(category.id, category.name);
+        };
+        
+        cardContainer.appendChild(card);
+        cardContainer.appendChild(deleteBtn);
+        grid.appendChild(cardContainer);
     });
 }
 
@@ -282,6 +298,14 @@ const Storage = {
     deleteProject: function(categoryId, projectId) {
         const key = `project_${categoryId}_${projectId}`;
         localStorage.removeItem(key);
+    },
+
+    deleteCategory: function(categoryId) {
+        // Remove all projects in this category
+        const projectKeys = Object.keys(localStorage).filter(key => 
+            key.startsWith(`project_${categoryId}_`)
+        );
+        projectKeys.forEach(key => localStorage.removeItem(key));
     }
 };
 
@@ -298,6 +322,40 @@ const URLUtils = {
         window.history.replaceState({}, '', url);
     }
 };
+
+// Category deletion functions
+function showDeleteCategoryModal(categoryId, categoryName) {
+    if (typeof DataManager !== 'undefined' && !DataManager.requireAuth()) return;
+    
+    const category = AppState.categories.find(c => c.id === categoryId);
+    const projectCount = category ? category.projects.length : 0;
+    
+    let message = `Are you sure you want to delete the category "${categoryName}"?`;
+    if (projectCount > 0) {
+        message += `\n\nThis will also delete ${projectCount} project${projectCount === 1 ? '' : 's'} in this category.`;
+    }
+    message += '\n\nThis action cannot be undone.';
+    
+    if (confirm(message)) {
+        deleteCategory(categoryId);
+    }
+}
+
+function deleteCategory(categoryId) {
+    // Remove from AppState
+    AppState.categories = AppState.categories.filter(c => c.id !== categoryId);
+    
+    // Remove from localStorage
+    Storage.deleteCategory(categoryId);
+    
+    // Re-render categories
+    renderCategories();
+    
+    // Show success message
+    setTimeout(() => {
+        alert('Category deleted successfully!');
+    }, 100);
+}
 
 // String utilities
 const StringUtils = {

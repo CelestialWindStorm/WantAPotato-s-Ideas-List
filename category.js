@@ -60,6 +60,9 @@ function renderProjects() {
         const projectId = StringUtils.slugify(projectName);
         const savedProject = Storage.loadProject(currentCategoryData.id, projectId);
         
+        const cardContainer = document.createElement('div');
+        cardContainer.className = 'project-card-container';
+        
         const card = document.createElement('a');
         card.href = `project.html?category=${currentCategoryData.id}&project=${projectId}`;
         card.className = 'project-card';
@@ -77,7 +80,19 @@ function renderProjects() {
             <div class="project-preview">${preview}</div>
         `;
         
-        grid.appendChild(card);
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'project-delete-btn';
+        deleteBtn.innerHTML = '×';
+        deleteBtn.title = 'Delete Project';
+        deleteBtn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            showDeleteProjectModal(projectName, projectId);
+        };
+        
+        cardContainer.appendChild(card);
+        cardContainer.appendChild(deleteBtn);
+        grid.appendChild(cardContainer);
     });
 }
 
@@ -142,4 +157,40 @@ function handleCreateProject(event) {
     
     // Redirect to project editor
     window.location.href = `project.html?category=${currentCategoryData.id}&project=${projectId}`;
+}
+
+// Project deletion functions
+function showDeleteProjectModal(projectName, projectId) {
+    if (typeof DataManager !== 'undefined' && !DataManager.requireAuth()) return;
+    
+    const message = `Are you sure you want to delete the project "${projectName}"?\n\nThis action cannot be undone.`;
+    
+    if (confirm(message)) {
+        deleteProjectFromCategory(projectName, projectId);
+    }
+}
+
+function deleteProjectFromCategory(projectName, projectId) {
+    // Remove from category data
+    currentCategoryData.projects = currentCategoryData.projects.filter(p => p !== projectName);
+    
+    // Remove from localStorage
+    Storage.deleteProject(currentCategoryData.id, projectId);
+    
+    // Update the global categories state
+    const globalCategory = AppState.categories.find(c => c.id === currentCategoryData.id);
+    if (globalCategory) {
+        globalCategory.projects = currentCategoryData.projects;
+    }
+    
+    // Re-render projects
+    renderProjects();
+    
+    // Update description
+    document.getElementById('categoryDescription').textContent = `Browse ${currentCategoryData.projects.length} projects in this category`;
+    
+    // Show success message
+    setTimeout(() => {
+        alert('Project deleted successfully!');
+    }, 100);
 }

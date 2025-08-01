@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Admin - WantAPotato's Ideas List</title>
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Interface -->
+    <div id="auth-screen" class="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-header">
+                <i class="fas fa-shield-alt"></i>
+                <h1>🥔 Project Admin</h1>
+                <p>Enter credentials to manage WantAPotato's Ideas List</p>
+            </div>
+            <form id="auth-form" class="auth-form">
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password-input" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="auth-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Access Admin
+                </button>
+            </form>
+            <div class="auth-footer">
+                <a href="../index.html" class="return-link">
+                    <i class="fas fa-arrow-left"></i>
+                    Return to Ideas List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="dashboard" class="dashboard" style="display: none;">
+        <!-- Top Navigation -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1><i class="fas fa-cog"></i> Project Management Admin</h1>
+                <div class="header-actions">
+                    <button id="save-btn" class="btn btn-success">
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
+                    <button id="logout-btn" class="btn btn-secondary">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Navigation -->
+        <nav class="dashboard-nav">
+            <button class="nav-item active" data-section="projects">
+                <i class="fas fa-project-diagram"></i>
+                Projects
+            </button>
+            <button class="nav-item" data-section="categories">
+                <i class="fas fa-folder"></i>
+                Categories
+            </button>
+            <button class="nav-item" data-section="backup">
+                <i class="fas fa-database"></i>
+                Backup & Export
+            </button>
+            <button class="nav-item" data-section="settings">
+                <i class="fas fa-cog"></i>
+                Settings
+            </button>
+        </nav>
+
+        <!-- Content Sections -->
+        <main class="dashboard-main">
+            <!-- Projects Section -->
+            <section id="projects-section" class="section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-project-diagram"></i> Project Management</h2>
+                    <button id="add-project-btn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add New Project
+                    </button>
+                </div>
+                <div id="projects-container" class="projects-grid">
+                    <!-- Projects will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Categories Section -->
+            <section id="categories-section" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-folder"></i> Category Management</h2>
+                    <button id="add-category-btn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add New Category
+                    </button>
+                </div>
+                <div id="categories-container" class="categories-grid">
+                    <!-- Categories will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Backup Section -->
+            <section id="backup-section" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-database"></i> Backup & Data Management</h2>
+                </div>
+                <div class="backup-grid">
+                    <div class="backup-card">
+                        <h3><i class="fas fa-download"></i> Export Data</h3>
+                        <p>Download all projects and categories as JSON files</p>
+                        <div class="backup-actions">
+                            <button id="export-all-btn" class="btn btn-primary">
+                                <i class="fas fa-download"></i>
+                                Export All Projects
+                            </button>
+                            <button id="export-categories-btn" class="btn btn-secondary">
+                                <i class="fas fa-folder-open"></i>
+                                Export Categories
+                            </button>
+                        </div>
+                    </div>
+                    <div class="backup-card">
+                        <h3><i class="fas fa-upload"></i> Import Data</h3>
+                        <p>Import projects and categories from JSON files</p>
+                        <div class="backup-actions">
+                            <button id="import-projects-btn" class="btn btn-primary">
+                                <i class="fas fa-upload"></i>
+                                Import Projects
+                            </button>
+                            <button id="import-categories-btn" class="btn btn-secondary">
+                                <i class="fas fa-folder-plus"></i>
+                                Import Categories
+                            </button>
+                        </div>
+                    </div>
+                    <div class="backup-card">
+                        <h3><i class="fas fa-shield-alt"></i> Backup Management</h3>
+                        <p>Create and restore complete backups</p>
+                        <div class="backup-actions">
+                            <button id="create-backup-btn" class="btn btn-success">
+                                <i class="fas fa-save"></i>
+                                Create Full Backup
+                            </button>
+                            <button id="restore-backup-btn" class="btn btn-warning">
+                                <i class="fas fa-undo"></i>
+                                Restore Backup
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-section" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-cog"></i> System Settings</h2>
+                </div>
+                <div class="settings-grid">
+                    <div class="settings-group">
+                        <h3>Site Configuration</h3>
+                        <div class="form-group">
+                            <label for="site-title">Site Title</label>
+                            <input type="text" id="site-title" value="WantAPotato's Ideas List" placeholder="Site Title">
+                        </div>
+                        <div class="form-group">
+                            <label for="site-description">Site Description</label>
+                            <textarea id="site-description" rows="3" placeholder="Site description...">A collection of creative projects and ideas</textarea>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <h3>Data Management</h3>
+                        <div class="form-group">
+                            <label for="auto-save">Auto-save Projects</label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="auto-save" checked>
+                                <span class="checkmark"></span>
+                                Automatically save project changes
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="backup-reminder">Backup Reminders</label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="backup-reminder" checked>
+                                <span class="checkmark"></span>
+                                Show backup reminders
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Project Modal -->
+    <div id="project-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="project-modal-title">Add Project</h3>
+                <button class="modal-close" id="close-project-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="project-form">
+                    <input type="hidden" id="project-id">
+                    <div class="content-grid">
+                        <div class="form-group">
+                            <label for="project-title">Project Title</label>
+                            <input type="text" id="project-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="project-category">Category</label>
+                            <select id="project-category" required>
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="project-description">Description</label>
+                            <textarea id="project-description" rows="4" placeholder="Project description..."></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="project-content">Project Content</label>
+                            <textarea id="project-content" rows="10" placeholder="Project details, notes, and content..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="project-status">Status</label>
+                            <select id="project-status">
+                                <option value="planning">Planning</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                                <option value="on-hold">On Hold</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="project-priority">Priority</label>
+                            <select id="project-priority">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-project">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Project</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="category-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="category-modal-title">Add Category</h3>
+                <button class="modal-close" id="close-category-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="category-form">
+                    <input type="hidden" id="category-id">
+                    <div class="content-grid">
+                        <div class="form-group">
+                            <label for="category-name">Category Name</label>
+                            <input type="text" id="category-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="category-icon">Icon (Font Awesome class)</label>
+                            <input type="text" id="category-icon" placeholder="fas fa-folder" value="fas fa-folder">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="category-description">Description</label>
+                            <textarea id="category-description" rows="3" placeholder="Category description..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="category-color">Color Theme</label>
+                            <select id="category-color">
+                                <option value="blue">Blue</option>
+                                <option value="green">Green</option>
+                                <option value="red">Red</option>
+                                <option value="purple">Purple</option>
+                                <option value="orange">Orange</option>
+                                <option value="teal">Teal</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-category">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="message-container" class="message-container"></div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

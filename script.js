@@ -7,29 +7,18 @@ const AppState = {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', async function() {
-    // Initialize authentication first
-    if (typeof DataManager !== 'undefined') {
-        const isAuthenticated = await DataManager.initializeAuth();
-        if (isAuthenticated) {
-            showMainContent();
-        } else {
-            showAuthScreen();
-        }
-    } else {
-        showMainContent();
-    }
-    
+    showMainContent();
     loadCategories();
     setupEventListeners();
 });
 
-// Show main content (authenticated)
+// Show main content
 function showMainContent() {
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
 }
 
-// Show authentication screen
+// Show authentication screen  
 function showAuthScreen() {
     document.getElementById('loadingScreen').style.display = 'block';
     document.getElementById('mainContent').style.display = 'none';

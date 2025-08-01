@@ -198,6 +198,21 @@ class DataManager {
     }
 
     showAuthenticationInfo() {
+        // Show header logout button
+        const headerLogoutBtn = document.getElementById('header-logout-btn');
+        if (headerLogoutBtn) {
+            headerLogoutBtn.style.display = 'block';
+            // Add event listener if not already added
+            if (!headerLogoutBtn.hasAttribute('data-listener-added')) {
+                headerLogoutBtn.addEventListener('click', () => {
+                    if (confirm('Are you sure you want to logout?')) {
+                        this.logout();
+                    }
+                });
+                headerLogoutBtn.setAttribute('data-listener-added', 'true');
+            }
+        }
+
         // Create or show authentication info panel
         let authInfo = document.getElementById('auth-info');
         if (!authInfo) {
@@ -231,6 +246,13 @@ class DataManager {
     }
 
     hideAuthenticationInfo() {
+        // Hide header logout button
+        const headerLogoutBtn = document.getElementById('header-logout-btn');
+        if (headerLogoutBtn) {
+            headerLogoutBtn.style.display = 'none';
+        }
+
+        // Hide authentication info panel
         const authInfo = document.getElementById('auth-info');
         if (authInfo) {
             authInfo.style.display = 'none';
